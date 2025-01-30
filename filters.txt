@@ -1,0 +1,232 @@
+1.Butterworth
+digital_pass = input("enter the pass band edge frequency: "); 
+digital_stop = input("enter the stop band edge frequency: "); 
+n=input("Enter 1 for IIT\nEnter 2 for BLT\n"); 
+if (n==1) 
+T=1; 
+analog_pass = digital_pass/T; 
+analog_stop = digital_stop/T; 
+else 
+T=2; 
+analog_pass = (2/T)*tan(digital_pass/2); 
+analog_stop = (2/T)*tan(digital_stop/2); 
+end 
+choice = input("Enter 1 for gain in rad\n Enter 2 for gain in db"); 
+if (choice==1) 
+Ap = input("Enter the pass band gain: \n"); 
+As = input("Enter the stop band gain: \n"); 
+a = (1/(As*As))-1; 
+b = (1/(Ap*Ap))-1; 
+else 
+Ap = input("Enter the pass band gain: \n"); 
+As = input("Enter the stop band gain: \n"); 
+a = 10^(0.1*As)-1; 
+b = 10^(0.1*Ap)-1; 
+end 
+num1 = log(a/b); 
+disp(num1); 
+den1 = 2*log(analog_stop/analog_pass); 
+disp(den1); 
+N = num1/den1 
+N1 = fix(N); 
+if(N==N1) 
+No=N1; 
+else 
+No=N1+1; 
+end 
+cs=analog_stop/(a^(1/(2*No))); 
+cp=analog_pass/(b^(1/(2*No))); 
+c=(cp+cs)/2 
+[Bn,An]=butter(No,1,'s'); 
+Hsn=tf(Bn,An); 
+Hsn 
+[B,A]=butter(No,c,'s'); 
+Hs=tf(B,A); 
+Hs 
+if(n==1) 
+[num,den]=impinvar(B,A,1/T); 
+else 
+[num,den]=bilinear(B,A,1/T); 
+end 
+Hz=tf(num,den,T); 
+Hz 
+W=0:pi/180:pi; 
+Hw=freqz(num,den,W); 
+Hw_mag=abs(Hw);  
+Hw_phase = angle(Hw); 
+figure; 
+subplot(2,1,1); 
+plot(W/pi,Hw_mag);  
+title("mag response"); 
+subplot(2,1,2); 
+plot(W/pi,Hw_phase); 
+title("Phase response");
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+2 Chebyshev  
+digital_pass=input("Enter the pass band edge frequency: \n"); 
+digital_stop=input("Enter the stop band edge frequency: \n"); 
+n=input("Enter 1 for IIT\n Enter 2 for BLT\n"); 
+if(n==1) 
+T=1; 
+analog_pass=digital_pass/T; 
+analog_stop=digital_stop/T; 
+else 
+T=2; 
+analog_pass=(2/T)*tan(digital_pass/2); 
+analog_stop=(2/T)*tan(digital_stop/2); 
+end 
+% To determine normalised specifications 
+analog_pass_prime=analog_pass/analog_pass; 
+analog_stop_prime=analog_stop/analog_pass; 
+choice=input("Enter 1 for gain in ratio \n Enter 2 for gain in db\n"); 
+if(choice==1) 
+Ap=input("Enter the pass band gain : \n"); 
+As=input("Enter the stop band gain : \n"); 
+Ap=abs(mag2db(Ap)); 
+As=abs(mag2db(As)); 
+else 
+Ap=input("Enter the pass band attenuation  : \n"); 
+As=input("Enter the stop band attenuation : \n"); 
+end 
+%To determine order 
+[N,CF]=cheb1ord(analog_pass,analog_stop,Ap,As,'s'); 
+N 
+CF 
+[Bn,An]=cheby1(N,Ap,1,'s'); 
+Hsn=tf(Bn,An) 
+[B,A]=cheby1(N,Ap,CF,'s'); 
+hs=tf(B,A) 
+if(choice==1) 
+[num,den]=impinvar(B,A,1/T); 
+else 
+[num,den]=bilinear(B,A,1/T); 
+end 
+Hz=tf(num,den,T) 
+W=(0:pi/180:pi); 
+Hw=freqz(num,den,W); 
+Hw_mag=(abs(Hw)); 
+Hw_phase=angle(Hw); 
+figure; 
+subplot(2,1,1); 
+plot(W/pi,Hw_mag);  
+title("mag response"); 
+subplot(2,1,2); 
+plot(W/pi,Hw_phase); 
+title("Phase response"); 
+
+
+
+2 Hanning LPF without inbuilt functions 
+N = input("Enter the length: "); 
+wc = input("Enter the cutoff frequency(radians): "); 
+tou = (N-1)/2; 
+hd = zeros(1,N); 
+wn = zeros(1,N); 
+whan = zeros(1,N); 
+for n = 1 : N 
+whan(n)  = 0.5*(1 - cos((2*pi*(n-1))/(N-1))); 
+if n == tou+1 
+hd(n) = wc/pi; 
+wn(n) = hd(n) * whan(n); 
+else 
+hd(n) = sin(wc*(n-tou-1))/(pi*(n-tou-1)); 
+wn(n) = hd(n) * whan(n);        
+end 
+end 
+Hz = tf(wn,1,1/2000,'variable','z^-1') 
+W = 0:pi / 180:pi; 
+Hw = freqz(wn,1,W); 
+subplot(2,1,1); 
+plot(W,abs(Hw)); 
+title("Magnitude Response"); 
+xlabel("w"); 
+ylabel("|H(w)|"); 
+subplot(2,1,2); 
+plot(W/pi,angle(Hw)); 
+title("Phase Response"); 
+xlabel("w"); 
+ylabel("<H(w)"); 
+
+
+
+
+
+3 Hanning LPF using inbuilt functions  
+fs = 2000; 
+n = input("Enter length"); 
+choice = input("Select An option for which Filter Type\n1. Low pass filter\n2. 
+High pass \n"); 
+Wc = input('Enter the Cuttoff Frequency: '); 
+Wc = Wc / (fs / 2); 
+switch choice 
+case 1 
+ans = fir1(n, Wc, "low", hann(n+1)); 
+freqz(ans, 1, 1024); 
+case 2 
+ans = fir1(n-1, Wc, "high", hann(n)); 
+freqz(ans, 1, 1024); 
+end 
+
+
+
+
+4 Hamming LPF without inbuilt functions 
+N = input("Enter the length: "); 
+wc = input("Enter the cutoff frequency(radians): "); 
+tou = (N-1)/2; 
+hd = zeros(1,N); 
+wn = zeros(1,N); 
+wham = zeros(1,N); 
+for n = 1 : N 
+wham(n)  = 0.54 - 0.46*cos((2*pi*(n-1))/(N-1)); 
+if n == tou+1 
+hd(n) = wc/pi; 
+wn(n) = hd(n) * wham(n); 
+else 
+hd(n) = sin(wc*(n-tou-1))/(pi*(n-tou-1)); 
+wn(n) = hd(n) * wham(n);        
+end 
+end 
+Hz = tf(wn,1,1/2000,'variable','z^-1') 
+W = 0:pi / 180:pi; 
+Hw = freqz(wn,1,W); 
+figure; 
+subplot(2,1,1); 
+plot(W,abs(Hw)); 
+title("Magnitude Response"); 
+subplot(2,1,2); 
+plot(W/pi,angle(Hw)); 
+title("Phase Response"); 
+
+
+
+
+
+5 Hamming LPF using inbuilt functions 
+fs = 2000; 
+n = input("Enter length"); 
+choice = input("Select An option for which Filter Type\n1. Low pass filter\n2. 
+High pass \n"); 
+Wc = input('Enter the Cuttoff Frequency: '); 
+Wc = Wc / (fs / 2); 
+switch choice 
+case 1 
+ans = fir1(n, Wc, "low", hamming(n+1)); 
+freqz(ans, 1, 1024); 
+case 2 
+ans = fir1(n-1, Wc, "high", hamming(n)); 
+freqz(ans, 1, 1024); 
+end
