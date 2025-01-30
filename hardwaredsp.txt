@@ -1,0 +1,165 @@
+// Online C compiler to run C program online
+#include <stdio.h>
+#include<math.h>
+int main() {
+int n,k,N,i;
+float pi=3.14,Xr[8]={0,0},Xi[8]={0,0},sumre=0,sumim=0;
+int x[32];
+printf("enter the length of the sequence");
+scanf("%d",&N);
+printf("enter the sequence");
+for(i=0;i<N;i++){
+    scanf("%d",&x[i]);
+}
+for(k=0;k<N;k++){
+    sumre=0;sumim=0;
+    for(n=0;n<N;n++){
+        sumre=sumre+x[n]*cos(2*pi*k*n/N);
+        sumim=sumim-x[n]*sin(2*pi*k*n/N);
+    }
+    Xr[k]=sumre;
+    Xi[k]=sumim;
+    printf("x([%d])=\t%f\t+\t%fi\n",k,Xr[k],Xi[k]); 
+}
+
+    return 0;
+}//////dft
+
+#include <stdio.h>
+
+void crossCorrelation(int sig1[], int N1, int sig2[], int N2) {
+    int len = N1 + N2 - 1;
+    int R[len];
+
+    // Initialize the result array with 0
+    for (int i = 0; i < len; i++) {
+        R[i] = 0;
+    }
+
+    // Compute cross-correlation
+    for (int i = 0; i < N1; i++) {
+        for (int j = 0; j < N2; j++) {
+            R[i + j] += sig1[i] * sig2[j];
+        }
+    }
+
+    // Print the result
+    printf("Cross-Correlation Output:\n");
+    for (int i = 0; i < len; i++) {
+        printf("%d ", R[i]);
+    }
+    printf("\n");
+}
+
+int main() {
+    int N1, N2;
+
+    // Input for signal 1
+    printf("Enter the length of first signal: ");
+    scanf("%d", &N1);
+    int sig1[N1];
+    printf("Enter the first signal: ");
+    for (int i = 0; i < N1; i++) {
+        scanf("%d", &sig1[i]);
+    }
+
+    // Input for signal 2
+    printf("Enter the length of second signal: ");
+    scanf("%d", &N2);
+    int sig2[N2];
+    printf("Enter the second signal: ");
+    for (int i = 0; i < N2; i++) {
+        scanf("%d", &sig2[i]);
+    }
+
+    // Compute and print cross-correlation
+    crossCorrelation(sig1, N1, sig2, N2);
+
+    return 0;
+}
+//////cross corelll
+
+
+
+
+#include <stdio.h>
+
+void autocorrelation(int x[], int N) {
+    int R[N]; // Auto-correlation result array
+    
+    for (int k = 0; k < N; k++) {
+        R[k] = 0; // Initialize sum
+        for (int n = 0; n < N - k; n++) {
+            R[k] += x[n] * x[n + k];
+        }
+        printf("R(%d) = %d\n", k, R[k]);
+    }
+}
+
+int main() {
+    int N;
+    
+    printf("Enter the length of the sequence: ");
+    scanf("%d", &N);
+
+    int x[N];
+    printf("Enter the sequence:\n");
+    for (int i = 0; i < N; i++) {
+        scanf("%d", &x[i]);
+    }
+
+    printf("Auto-Correlation Result:\n");
+    autocorrelation(x, N);
+    
+    return 0;
+}
+
+
+
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx            circualr convol                xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+#include <stdio.h>
+
+// Function to compute circular convolution
+void circularConvolution(int x[], int h[], int y[], int N) {
+    for (int i = 0; i < N; i++) {
+        y[i] = 0; // Initialize the output array
+        for (int j = 0; j < N; j++) {
+            y[i] += x[j] * h[(i - j + N) % N]; // Circular convolution formula
+        }
+    }
+}
+
+int main() {
+    int N;
+
+    // Input the length of the sequences
+    printf("Enter the length of the sequences (N): ");
+    scanf("%d", &N);
+
+    int x[N], h[N], y[N];
+
+    // Input the first sequence x[n]
+    printf("Enter the first sequence x[n]:\n");
+    for (int i = 0; i < N; i++) {
+        scanf("%d", &x[i]);
+    }
+
+    // Input the second sequence h[n]
+    printf("Enter the second sequence h[n]:\n");
+    for (int i = 0; i < N; i++) {
+        scanf("%d", &h[i]);
+    }
+
+    // Compute circular convolution
+    circularConvolution(x, h, y, N);
+
+    // Output the result
+    printf("Circular convolution result y[n]:\n");
+    for (int i = 0; i < N; i++) {
+        printf("%d ", y[i]);
+    }
+    printf("\n");
+
+    return 0;
+}

@@ -1,0 +1,534 @@
+% Parameters
+f1 = 20; 
+f2 = 40; 
+T = 1; 
+Nyq_freq = 2 * max(f1, f2); % Nyquist frequency
+Fs_eq = Nyq_freq;           % Equal sampling rate
+Fs_ov = Nyq_freq * 2;       % Oversampling rate
+Fs_und = Nyq_freq / 1.5;    % Undersampling rate
+
+% Time Vectors
+t_eq = 0:(1/Fs_eq):(T-1/Fs_eq);
+t_ov = 0:(1/Fs_ov):(T-1/Fs_ov);
+t_und = 0:(1/Fs_und):(T-1/Fs_und);
+
+% Signals
+x_t_eq = 2*sin(2*pi*f1*t_eq) + 3*sin(2*pi*f2*t_eq);
+x_t_ov = 2*sin(2*pi*f1*t_ov) + 3*sin(2*pi*f2*t_ov);
+x_t_und = 2*sin(2*pi*f1*t_und) + 3*sin(2*pi*f2*t_und);
+
+% Frequency Domain Calculation
+[X_f_eq, freq_eq] = calc_fft(x_t_eq, Fs_eq);
+[X_f_ov, freq_ov] = calc_fft(x_t_ov, Fs_ov);
+[X_f_und, freq_und] = calc_fft(x_t_und, Fs_und);
+
+% Plotting
+sgtitle("Signal Analysis");
+
+subplot(3,2,1); 
+stem(t_eq, x_t_eq); 
+xlabel('Time (s)'); ylabel('Amplitude');
+title('Time domain signal (equal)');
+
+subplot(3,2,2); 
+plot(freq_eq, abs(X_f_eq)); 
+xlabel('Frequency (Hz)'); ylabel('Magnitude');
+title('Frequency domain signal (equal)');
+xlim([-Fs_eq/2, Fs_eq/2]);
+
+subplot(3,2,3); 
+stem(t_ov, x_t_ov); 
+xlabel('Time (s)'); ylabel('Amplitude');
+title('Time domain signal (over)');
+
+subplot(3,2,4); 
+plot(freq_ov, abs(X_f_ov)); 
+xlabel('Frequency (Hz)'); ylabel('Magnitude');
+title('Frequency domain signal (over)');
+xlim([-Fs_ov/2, Fs_ov/2]);
+
+subplot(3,2,5); 
+stem(t_und, x_t_und); 
+xlabel('Time (s)'); ylabel('Amplitude');
+title('Time domain signal (under)');
+
+subplot(3,2,6); 
+plot(freq_und, abs(X_f_und)); 
+xlabel('Frequency (Hz)'); ylabel('Magnitude');
+title('Frequency domain signal (under)');
+xlim([-Fs_und/2, Fs_und/2]);
+
+% Function to calculate FFT and frequency axis
+function [X_f, freq] = calc_fft(x_t, Fs)
+    N = length(x_t);
+    X_f = fftshift(fft(x_t, N)); % FFT with zero-centered frequencies
+    freq = (-Fs/2):(Fs/N):(Fs/2 - Fs/N); % Frequency axis
+end
+***************************************************1st question easy ********************************************************************
+******************************************************************************************************************************************
+
+
+x = [1, 2+2i, 3, 2-2i]; 
+N = length(x);
+
+% Compute DFT manually
+n = 0:N-1;
+k = n';
+X = x * exp(-1i * 2 * pi / N * k .* n);
+
+disp("DFT is: ")
+X
+
+% Plotting
+subplot(3,2,1);
+stem(abs(x));
+title('Input sequence');
+xlabel('n');
+ylabel('amplitude');
+
+subplot(3,2,2);
+stem(n, abs(X));
+title('Magnitude plot');
+xlabel('Frequency (Hz)');
+ylabel('Magnitude');
+
+subplot(3,2,3);
+stem(n, angle(X));
+title('Phase plot');
+xlabel('Frequency (Hz)');
+ylabel('Phase');
+
+% Compute IDFT manually
+Y = X * exp(1i * 2 * pi / N * k .* n) / N;
+
+disp("IDFT is: ")
+Y
+
+subplot(3,2,4);
+stem(abs(Y));
+title('IDFT Signal');
+xlabel('n');
+ylabel('Amplitude');
+
+
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+
+
+
+
+
+
+% Create two sequences
+x1 = [0,1,2,1]; 
+x2 = [0,1,2,1]; 
+
+% Compute DFTs using the FFT function for efficiency
+X1 = fft(x1); 
+X2 = fft(x2); 
+X_linear = fft(x1 + x2); 
+
+% Verify the linearity property
+linearity_check = isequal(X1 + X2, X_linear);
+
+% Display Results in Command Window
+disp('DFT of x1:');
+disp(X1.');
+
+disp('DFT of x2:');
+disp(X2.');
+
+disp('Sum of DFTs (X1 + X2):');
+disp((X1 + X2).');
+
+disp('DFT of x1 + x2 (X_linear):');
+disp(X_linear.');
+
+if linearity_check
+    disp('Linearity property is verified.');
+else
+    disp('Linearity property is NOT verified.');
+end
+
+% Plot Results
+figure;
+subplot(3,2,1); 
+stem(x1, 'filled'); 
+title('Input Sequence x1'); xlabel('n'); ylabel('x1[n]');
+
+subplot(3,2,2); 
+stem(x2, 'filled'); 
+title('Input Sequence x2'); xlabel('n'); ylabel('x2[n]');
+
+subplot(3,2,3); 
+stem(abs(X1), 'filled'); 
+title('DFT of x1 (Magnitude)'); xlabel('Frequency Index'); ylabel('|X1[k]|');
+
+subplot(3,2,4); 
+stem(abs(X2), 'filled'); 
+title('DFT of x2 (Magnitude)'); xlabel('Frequency Index'); ylabel('|X2[k]|');
+
+subplot(3,2,5); 
+stem(abs(X1 + X2), 'filled'); 
+title('Sum of DFTs (|X1[k] + X2[k]|)'); xlabel('Frequency Index'); ylabel('|X1[k] + X2[k]|');
+
+subplot(3,2,6); 
+stem(abs(X_linear), 'filled'); 
+title('DFT of x1 + x2 (Magnitude)'); xlabel('Frequency Index'); ylabel('|DFT(x1[n] + x2[n])|');
+***************************************************Linearity property********************************************************************
+******************************************************************************************************************************************
+% Define the sequence
+y1 = [4, 5, 6, 7];
+N = length(y1);
+
+% Create the periodic sequence (no need for a loop, directly use mod)
+y_periodic = y1(mod(0:N-1, N) + 1);
+
+% Compute the DFT of y1 and y_periodic using fft
+Y1 = fft(y1);
+Y_periodic = fft(y_periodic);
+
+% Display results in the Command Window
+disp('Original sequence (y1):');
+disp(y1);
+
+disp('Periodic sequence (y_periodic):');
+disp(y_periodic);
+
+disp('DFT of y1 (Y1):');
+disp(Y1.');
+
+disp('DFT of y_periodic (Y_periodic):');
+disp(Y_periodic.');
+
+% Verify periodicity property
+if isequal(Y1, Y_periodic)
+    disp('b) Periodicity property is verified.');
+else
+    disp('b) Periodicity property is NOT verified.');
+end
+
+% Plot results
+figure;
+subplot(3,2,1);
+stem(y1, 'filled');
+title('y1'); xlabel('n'); ylabel('Amplitude');
+
+subplot(3,2,2);
+stem(y_periodic, 'filled');
+title('y\_periodic'); xlabel('n'); ylabel('Amplitude');
+
+subplot(3,2,3);
+stem(abs(Y1), 'filled');
+title('DFT of y1 (Magnitude)'); xlabel('Frequency Index'); ylabel('|Y1[k]|');
+
+subplot(3,2,4);
+stem(abs(Y_periodic), 'filled');
+title('DFT of y\_periodic (Magnitude)'); xlabel('Frequency Index'); ylabel('|Y\_periodic[k]|');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+% Define the sequence
+x = [4, -4, 5, -5];
+N = length(x);
+
+% Define the shift amount 
+m = 2;
+
+% Create a circularly shifted sequence
+x_shifted = circshift(x, -m);
+
+% Compute the DFT using fft
+X_dft = fft(x);
+X_shifted_dft = fft(x_shifted);
+
+% Compute the shifted DFT using the circular shift property
+k = 0:N-1;
+X = exp(-1i * 2 * pi * m * k / N) .* X_dft;
+
+% Display results in the Command Window
+disp('Original sequence (x):');
+disp(x);
+
+disp('Circularly shifted sequence (x_shifted):');
+disp(x_shifted);
+
+disp('DFT of x (X_dft):');
+disp(X_dft.');
+
+disp('DFT of x_shifted (X_shifted_dft):');
+disp(X_shifted_dft.');
+
+disp('DFT of x with circular shift property (X):');
+disp(X.');
+
+% Verify the circular shift property
+if isequal(X_shifted_dft, X)
+    disp('c) Circular shift property is verified.');
+else
+    disp('c) Circular shift property is NOT verified.');
+end
+
+% Plot results
+figure;
+subplot(3,2,1);
+stem(x, 'filled');
+title('x'); xlabel('n'); ylabel('Amplitude');
+
+subplot(3,2,2);
+stem(x_shifted, 'filled');
+title('x-shifted'); xlabel('n'); ylabel('Amplitude');
+
+subplot(3,2,3);
+stem(abs(X_dft), 'filled');
+title('X-dft (Magnitude)'); xlabel('Frequency Index'); ylabel('|X[k]|');
+
+subplot(3,2,4);
+stem(abs(X_shifted_dft), 'filled');
+title('X-shifted-dft (Magnitude)'); xlabel('Frequency Index'); ylabel('|X\_shifted[k]|');
+
+subplot(3,2,5);
+stem(abs(X), 'filled');
+title('X_dft * W^km (Magnitude)'); xlabel('Frequency Index'); ylabel('|X[k] \cdot W^{km}|');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+% Define the sequence
+y = [4, 5, 6, 7];
+N = length(y);
+l = 3; % Frequency shift amount
+n = 0:N-1;
+
+% Compute the DFT and perform circular frequency shift
+Y_dft = fft(y);
+Y_fshift = circshift(Y_dft, l);
+
+% Compute LHS and RHS of the circular frequency shift property
+LHS = ifft(Y_fshift);
+RHS = exp(1j * 2 * pi * l * n / N) .* y;
+
+% Verify the property
+f_shift = isequal(round(LHS, 10), round(RHS, 10)); % Use rounding to avoid floating-point inaccuracies
+if f_shift
+    disp('c) Circular frequency shift property is verified.');
+else
+    disp('c) Circular frequency shift property is NOT verified.');
+end
+
+% Display results in the Command Window
+disp('Original sequence (y):');
+disp(y);
+
+disp('DFT of y (Y_dft):');
+disp(Y_dft.');
+
+disp('Circularly frequency-shifted DFT (Y_fshift):');
+disp(Y_fshift.');
+
+disp('LHS (ifft of Y_fshift):');
+disp(LHS.');
+
+disp('RHS (shifted sequence in time domain):');
+disp(RHS.');
+
+% Plot results
+figure;
+subplot(3,2,1);
+stem(y, 'filled');
+title('y'); xlabel('n'); ylabel('Amplitude');
+
+subplot(3,2,2);
+stem(abs(Y_dft), 'filled');
+title('Y-dft (Magnitude)'); xlabel('Frequency Index'); ylabel('|Y[k]|');
+
+subplot(3,2,3);
+stem(abs(Y_fshift), 'filled');
+title('Y-fshift (Magnitude)'); xlabel('Frequency Index'); ylabel('|Y\_fshift[k]|');
+
+subplot(3,2,4);
+stem(real(LHS), 'filled');
+title('LHS (Real Part)'); xlabel('n'); ylabel('Amplitude');
+
+subplot(3,2,5);
+stem(real(RHS), 'filled');
+title('RHS (Real Part)'); xlabel('n'); ylabel('Amplitude');
+
+
+
+
+
+
+
+
+
+
+
+
+
+% Define a complex sequence
+X = [1+1j, 2-2j, 3, 2+2j, 1-1j];  % Example sequence
+
+% Compute flipped and conjugate sequence
+X_conj_flip = conj(flip(X));
+
+% Check conjugate symmetry
+if isequal(X, X_conj_flip)
+    disp("The sequence is Conjugate Symmetric ✅");
+else
+    disp("The sequence is NOT Conjugate Symmetric ❌");
+end
+
+
+
+
+
+
+
+
+
+% Define input sequence
+x = [1 2 3 2 1];  % Example sequence (Even Symmetric)
+
+% Check even symmetry (x == flip(x))
+is_even = isequal(x, flip(x));
+
+% Check odd symmetry (x == -flip(x))
+is_odd = isequal(x, -flip(x));
+
+% Display result
+if is_even
+    disp("The sequence is EVEN (Symmetric) ✅");
+elseif is_odd
+    disp("The sequence is ODD (Anti-Symmetric) ✅");
+else
+    disp("The sequence is NEITHER EVEN NOR ODD ❌");
+end
+
+
+
+
+
+
+
+
+
+
+% Define input sequence
+x = [1 2 3 4 5];  % Example sequence
+
+% Perform time reversal using flip()
+x_rev = flip(x);
+
+% Display results
+disp("Original Sequence:");
+disp(x);
+disp("Time-Reversed Sequence:");
+disp(x_rev);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+% Define input sequence
+x = [1 2 3 4];  % Example sequence
+N = length(x);  % Length of sequence
+
+% Compute energy in time domain (LHS)
+lhs = sum(abs(x).^2);
+
+% Compute FFT
+X = fft(x);  
+
+% Compute energy in frequency domain (RHS)
+rhs = sum(abs(X).^2) / N;
+
+% Display results
+disp("LHS (Time Domain Energy):");
+disp(lhs);
+disp("RHS (Frequency Domain Energy / N):");
+disp(rhs);
+
+% Verify Parseval's theorem
+if abs(lhs - rhs) < 1e-6
+    disp("Parseval's Theorem Verified ✅");
+else
+    disp("Parseval's Theorem Not Verified ❌");
+end
+
+
+
+
+
+
+
+% Define input sequence
+x = [1 2 3 2 1];  % Example sequence (Even Symmetric)
+
+% Check even symmetry (x == flip(x))
+is_even = isequal(x, flip(x));
+
+% Check odd symmetry (x == -flip(x))
+is_odd = isequal(x, -flip(x));
+
+% Display result
+if is_even
+    disp("The sequence is EVEN (Symmetric) ✅");
+elseif is_odd
+    disp("The sequence is ODD (Anti-Symmetric) ✅");
+else
+    disp("The sequence is NEITHER EVEN NOR ODD ❌");
+end
+
+
+

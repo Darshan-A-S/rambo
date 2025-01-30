@@ -1,0 +1,185 @@
+% Create two sequences
+x1 = [0,1,2,1]; 
+x2 = [0,1,2,1]; 
+
+% Compute DFTs using the FFT function for efficiency
+X1 = fft(x1); 
+X2 = fft(x2); 
+X_linear = fft(x1 + x2); 
+
+% Verify the linearity property
+linearity_check = isequal(X1 + X2, X_linear);
+
+% Display Results in Command Window
+disp('DFT of x1:');
+disp(X1.');
+
+disp('DFT of x2:');
+disp(X2.');
+
+disp('Sum of DFTs (X1 + X2):');
+disp((X1 + X2).');
+
+disp('DFT of x1 + x2 (X_linear):');
+disp(X_linear.');
+
+if linearity_check
+    disp('Linearity property is verified.');
+else
+    disp('Linearity property is NOT verified.');
+end
+
+% Plot Results
+figure;
+subplot(3,2,1); 
+stem(x1, 'filled'); 
+title('Input Sequence x1'); xlabel('n'); ylabel('x1[n]');
+
+subplot(3,2,2); 
+stem(x2, 'filled'); 
+title('Input Sequence x2'); xlabel('n'); ylabel('x2[n]');
+
+subplot(3,2,3); 
+stem(abs(X1), 'filled'); 
+title('DFT of x1 (Magnitude)'); xlabel('Frequency Index'); ylabel('|X1[k]|');
+
+subplot(3,2,4); 
+stem(abs(X2), 'filled'); 
+title('DFT of x2 (Magnitude)'); xlabel('Frequency Index'); ylabel('|X2[k]|');
+
+subplot(3,2,5); 
+stem(abs(X1 + X2), 'filled'); 
+title('Sum of DFTs (|X1[k] + X2[k]|)'); xlabel('Frequency Index'); ylabel('|X1[k] + X2[k]|');
+
+subplot(3,2,6); 
+stem(abs(X_linear), 'filled'); 
+title('DFT of x1 + x2 (Magnitude)'); xlabel('Frequency Index'); ylabel('|DFT(x1[n] + x2[n])|');
+
+
+
+
+
+% Define the sequence
+y1 = [4, 5, 6, 7];
+N = length(y1);
+
+% Create the periodic sequence (no need for a loop, directly use mod)
+y_periodic = y1(mod(0:N-1, N) + 1);
+
+% Compute the DFT of y1 and y_periodic using fft
+Y1 = fft(y1);
+Y_periodic = fft(y_periodic);
+
+% Display results in the Command Window
+disp('Original sequence (y1):');
+disp(y1);
+
+disp('Periodic sequence (y_periodic):');
+disp(y_periodic);
+
+disp('DFT of y1 (Y1):');
+disp(Y1.');
+
+disp('DFT of y_periodic (Y_periodic):');
+disp(Y_periodic.');
+
+% Verify periodicity property
+if isequal(Y1, Y_periodic)
+    disp('b) Periodicity property is verified.');
+else
+    disp('b) Periodicity property is NOT verified.');
+end
+
+% Plot results
+figure;
+subplot(3,2,1);
+stem(y1, 'filled');
+title('y1'); xlabel('n'); ylabel('Amplitude');
+
+subplot(3,2,2);
+stem(y_periodic, 'filled');
+title('y\_periodic'); xlabel('n'); ylabel('Amplitude');
+
+subplot(3,2,3);
+stem(abs(Y1), 'filled');
+title('DFT of y1 (Magnitude)'); xlabel('Frequency Index'); ylabel('|Y1[k]|');
+
+subplot(3,2,4);
+stem(abs(Y_periodic), 'filled');
+title('DFT of y\_periodic (Magnitude)'); xlabel('Frequency Index'); ylabel('|Y\_periodic[k]|');
+
+
+
+
+
+
+
+
+% Define input sequence
+x = [1 2 3 4 5];  % Example sequence
+N = length(x);    % Length of sequence
+k = 2;            % Shift amount (positive for right shift, negative for left shift)
+
+% Perform circular shift using circshift()
+y = circshift(x, k);
+
+% Display results
+disp("Original Sequence:");
+disp(x);
+disp("Circularly Shifted Sequence:");
+disp(y);
+
+
+
+
+
+% Define input sequence
+x = [1 2 3 4];  % Example sequence
+N = length(x);  % Length of sequence
+k = 1;          % Frequency shift amount (in DFT bins)
+
+% Generate the complex exponential for frequency shift
+n = 0:N-1;  % Time indices
+exp_factor = exp(1j * 2 * pi * k * n / N);
+
+% Apply circular frequency shift                                        ////////////////x dhu dft teged shift madidre freq shift
+y = x .* exp_factor;
+
+% Display results
+disp("Original Sequence:");
+disp(x);
+disp("Frequency-Shifted Sequence:");
+disp(y);
+
+
+
+
+% Define input sequence
+x = [1 2 3 4];  % Example sequence
+N = length(x);  % Length of sequence
+
+% Compute energy in time domain (LHS)
+lhs = sum(abs(x).^2);
+
+% Compute FFT
+X = fft(x);  
+
+% Compute energy in frequency domain (RHS)
+rhs = sum(abs(X).^2) / N;
+
+% Display results
+disp("LHS (Time Domain Energy):");
+disp(lhs);
+disp("RHS (Frequency Domain Energy / N):");
+disp(rhs);
+
+% Verify Parseval's theorem
+if abs(lhs - rhs) < 1e-6
+    disp("Parseval's Theorem Verified ✅");
+else
+    disp("Parseval's Theorem Not Verified ❌");
+end
+
+
+
+
