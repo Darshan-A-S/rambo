@@ -1,0 +1,313 @@
+III Radix-2 DIT FFT Algorithm: 
+1. Dit fft 8 point dft: 
+dit fft 
+x=[1, 2, 3, 4, 4, 3, 2, 1]; 
+x=[x,zeros(1,(N-length(x)))]; 
+N=length(x); 
+y=DIT_R2(x); 
+disp("Radix-2 DIT FFT method result"); 
+y 
+X=fft(x,N); 
+disp("direct computation result") 
+X 
+k=0:N-1; 
+subplot(2,2,1) 
+stem(abs(y)); 
+xlabel("k") 
+ylabel("|X(K)|") 
+title("radix-2 DIT FFT magnitude plot") 
+subplot(2,2,2) 
+stem(angle(y)); 
+xlabel("k") 
+ylabel("<X(K)") 
+title("radix-2 DIT FFT phase plot") 
+subplot(2,2,3) 
+stem(abs(X)); 
+xlabel("k") 
+ylabel("|X(K)|") 
+title("Direct computation magnitude plot") 
+subplot(2,2,4) 
+stem(angle(X)); 
+xlabel("k") 
+ylabel("<X(K)") 
+title("Direct computation phase plot") 
+function y=DIT_R2(x) 
+p=nextpow2(length(x)); 
+x=[x,zeros(1,(2^p)-length(x))]; 
+N=length(x); 
+s=log2(N); 
+half=1; 
+x=bitrevorder(x); 
+disp(x); 
+disp(s); 
+for stage=1:s 
+for index=0:(2^stage):(N-1) 
+for n=0:half-1 
+pos=n+index+1; 
+pow=(2^(s-stage))*n; 
+w=exp(-1i*2*pi*pow/N); 
+a=x(pos)+x(pos+half).*w; 
+b=x(pos)-x(pos+half).*w; 
+x(pos)=a; 
+x(pos+half)=b; 
+disp(x(pos)); 
+disp(x(pos+half)); 
+end 
+end 
+half=2*half; 
+end 
+y=x; 
+end 
+
+
+
+
+
+
+2. Dit fft 4 point dft: 
+x=[1, 2, 3, 4]; 
+%x=[x,zeros(1,(N-length(x)))]; 
+N=length(x); 
+y=DIT_R2(x); 
+disp("Radix-2 DIT FFT method result"); 
+y 
+X=fft(x,N); 
+disp("direct computation result") 
+X 
+k=0:N-1; 
+subplot(2,2,1) 
+stem(abs(y)); 
+xlabel("k") 
+ylabel("|X(K)|") 
+title("radix-2 DIT FFT magnitude plot") 
+subplot(2,2,2) 
+stem(angle(y)); 
+xlabel("k") 
+ylabel("<X(K)") 
+title("radix-2 DIT FFT phase plot") 
+subplot(2,2,3) 
+stem(abs(X)); 
+xlabel("k") 
+ylabel("|X(K)|") 
+title("Direct computation magnitude plot") 
+subplot(2,2,4) 
+stem(angle(X)); 
+xlabel("k") 
+ylabel("<X(K)") 
+title("Direct computation phase plot") 
+function y=DIT_R2(x) 
+p=nextpow2(length(x)); 
+x=[x,zeros(1,(2^p)-length(x))]; 
+N=length(x); 
+s=log2(N); 
+half=1; 
+x=bitrevorder(x); 
+disp(x); 
+disp(s); 
+for stage=1:s 
+for index=0:(2^stage):(N-1) 
+for n=0:half-1 
+pos=n+index+1; 
+pow=(2^(s-stage))*n; 
+w=exp(-1i*2*pi*pow/N); 
+a=x(pos)+x(pos+half).*w; 
+b=x(pos)-x(pos+half).*w; 
+x(pos)=a; 
+x(pos+half)=b; 
+disp(x(pos)); 
+disp(x(pos+half)); 
+end 
+end 
+half=2*half; 
+end 
+y=x; 
+end 
+3. DIT FFT IDFT 4 point: 
+dit idft: 
+X = [9, -5, 5, -1]; 
+N = length(X); 
+k = 0:N-1; 
+C_X = conj(X); 
+y = DIT_R2(C_X); 
+y = conj(y)/4; 
+y 
+x_n = ifft(X,N); 
+x_n 
+k = 0:N-1; 
+subplot(2,2,1); 
+stem(abs(y)); 
+title("Radix-2 DIT FFT idft"); 
+subplot(2,2,2); 
+stem(angle(y)); 
+title("Phase of idft"); 
+subplot(2,2,3); 
+stem(abs(x_n)); 
+title("Direct idft"); 
+subplot(2,2,4); 
+stem(angle(x_n)); 
+title("Phase of direct idft"); 
+function y = DIT_R2(x) 
+p = nextpow2(length(x)); 
+x = [x, zeros(1, (2^p)-length(x))]; 
+N = length(x); 
+s = log2(N); 
+half = 1; 
+x = bitrevorder(x); 
+disp(x); 
+disp(s); 
+for stage = 1:s 
+for index = 0:(2^stage):N-1 
+for n = 0:(half-1) 
+pos = n+index+1; 
+pow = (2^(s-stage))*n; 
+w = exp(-1i*2*pi*pow/N); 
+a = x(pos) + (x(pos+half).*w); 
+b = x(pos) - (x(pos+half).*w); 
+x(pos) = a; 
+x(pos+half) = b; 
+disp(x(pos)); 
+disp(x(pos+half)); 
+end 
+end 
+half = 2*half; 
+end 
+y = x; 
+end 
+
+
+
+
+
+
+
+IV Radix-2 DIF FFT Algorithm: 
+1. DFT 
+x = [1,2,3,4]; 
+N = length(x); 
+k= 0:N-1; 
+p = nextpow2(length(x)); 
+x = [x, zeros(1, (2^p)-length(x))]; 
+N = length(x); 
+y = DIF_R2(x); 
+y 
+X = fft(x,N); 
+X 
+k = 0:N-1; 
+subplot(2,2,1); 
+stem(abs(y)); 
+title("8point dif dft magnitude"); 
+subplot(2,2,2); 
+stem(angle(y)); 
+title("8point dif dft phase"); 
+subplot(2,2,3); 
+stem(abs(X)); 
+title("direct dft magnitude"); 
+subplot(2,2,4); 
+stem(angle(X)); 
+title("direct dft phase"); 
+function y=DIF_R2(x) 
+       p = nextpow2(length(x)); 
+       x = [x, zeros(1, (2^p)-length(x))]; 
+       N = length(x); 
+       s = log2(N); 
+       half = N/2; 
+       s 
+       for stage = 1:s 
+           for index = 0:(N/(2^(stage-1))):(N-1) 
+               for n=0:(half-1) 
+                   pos = n+index+1; 
+                   pow = (2^(stage-1))*n; 
+                   w = exp(-1i*2*pi*pow/N); 
+                   a = x(pos) + x(pos+half); 
+                   b = (x(pos) - x(pos+half)).*w; 
+                   x(pos) = a; 
+                   x(pos+half) = b; 
+                   disp(x(pos)); 
+                   disp(x(pos+half)); 
+               end 
+           end 
+           half = half/2; 
+       end 
+       y = bitrevorder(x); 
+end 
+ 
+ 
+ 
+ 
+ 
+2 IDFT 
+X = [10, 1+1i, 0, 1-1i]; 
+N = length(X); 
+k= 0:N-1; 
+C_X = conj(X); 
+z = DIF_R2(C_X); 
+y = conj(z)./N; 
+y 
+x = ifft(X,N); 
+x 
+k = 0:N-1; 
+subplot(2,2,1); 
+stem(abs(y)); 
+title("dif idft magnitude"); 
+subplot(2,2,2); 
+stem(angle(y)); 
+title("dif idft phase"); 
+subplot(2,2,3); 
+stem(abs(x)); 
+title("direct idft magnitude"); 
+subplot(2,2,4); 
+stem(angle(x)); 
+title("direct idft phase"); 
+function y=DIF_R2(x) 
+p = nextpow2(length(x)); 
+x = [x, zeros(1, (2^p)-length(x))]; 
+N = length(x); 
+s = log2(N); 
+half = N/2; 
+s 
+for stage = 1:s 
+for index = 0:(N/(2^(stage-1))):(N-1) 
+for n=0:(half-1) 
+pos = n+index+1; 
+pow = (2^(stage-1))*n; 
+w = exp(-1i*2*pi*pow/N); 
+a = x(pos) + x(pos+half); 
+b = (x(pos) - x(pos+half)).*w; 
+x(pos) = a; 
+x(pos+half) = b; 
+disp(x(pos)); 
+disp(x(pos+half)); 
+end 
+end 
+half = half/2; 
+end 
+y = bitrevorder(x); 
+end
+
+
+
+
+
+
+
+
+
+
+
+% Define input sequence
+x = [1, 2, 3, 1];  % Example sequence (real-valued)
+
+% Compute the DFT of the sequence
+X = fft(x);
+
+% Verify conjugate symmetry using mod
+N = length(X);
+k = 1:N;
+is_conjugate_symmetric = all(abs(X(k) - conj(X(mod(N - k, N) + 1))) < 1e-6);
+
+% Display results
+if is_conjugate_symmetric
+    disp("The DFT exhibits conjugate symmetry ✅");
+else
+    disp("The DFT does NOT exhibit conjugate symmetry ❌");
+end
