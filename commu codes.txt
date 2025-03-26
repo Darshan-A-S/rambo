@@ -1,0 +1,167 @@
+%Shanon fano
+function shannon_fano()
+    p = cellfun(@eval, strsplit(input('Enter probability sequence:', 's'), ' ')); 
+    c = shannon(sort(p, 'descend'), ''); 
+    L = cellfun(@length, c); I = -log2(p); H = sum(p .* I); 
+    A = sum(p .* L); E = H / A * 100; R = 100 - E; 
+    disp(table(p', c', L', I', 'VariableNames', {'Probability', 'Code Word', 'Length', 'Information'}));
+    fprintf('Entropy H(X): %.4f\nAverage Length: %.4f\nEfficiency: %.2f%%\nRedundency: %.2f%%\n', H, A, E, R);
+end
+
+function c = shannon(p, pre)
+    if isscalar(p), c = {pre}; return; end
+    i = find(cumsum(p) >= sum(p) / 2, 1);
+    c = [shannon(p(1:i), [pre '0']), shannon(p(i+1:end), [pre '1'])];
+end
+
+
+
+
+
+
+
+
+% Delta modulation and demodulation
+clc; clear; close all;
+t = 0:0.001:1; x = sin(2*pi*5*t); delta = 0.05; prev = 0;
+
+staircase = zeros(size(t)); dm = zeros(size(t));
+for i = 1:length(t)
+    dm(i) = x(i) > prev; 
+    prev = prev + delta * (2*dm(i) - 1);
+    staircase(i) = prev;
+end
+
+demod = filter(delta, [1 -1], 2*dm - 1); % Improved integration
+demod = lowpass(demod, 5, 1000); % Smooth demodulation
+
+subplot(3,1,1), plot(t, x, 'b'), title('Original Signal');
+subplot(3,1,2), stairs(t, staircase, 'r'), title('Delta Modulated Signal');
+subplot(3,1,3), plot(t, demod, 'g'), title('Demodulated Signal');
+
+
+
+
+
+
+%Adaptive Delta mod and Demod
+clc; clear; close all;
+t = 0:0.001:1; x = sin(2*pi*5*t); delta = 0.05; prev = 0;
+
+staircase = zeros(size(t)); dm = zeros(size(t));
+for i = 1:length(t)
+    dm(i) = x(i) > prev; 
+    prev = prev + delta * (2*dm(i) - 1);
+    staircase(i) = prev;
+    delta = min(max(delta * (1 + 0.1 * abs(dm(i) - 0.5)), 0.01), 0.2); % Keep delta within range
+end
+
+demod = cumsum(2*dm - 1) * mean(diff(x)); % Proper integration
+demod = lowpass(demod, 5, 1000); % Smooth output
+
+subplot(3,1,1), plot(t, x, 'b'), title('Original Signal');
+subplot(3,1,2), stairs(t, staircase, 'r'), title('Adaptive DM Signal');
+subplot(3,1,3), plot(t, demod, 'g'), title('Demodulated Signal');
+
+
+
+
+
+
+
+%QPSK
+clc; clear; close all;
+bits = [0 1 1 0 1 0 0 1]; 
+fs = 1*10^5; 
+fc = 2*10^3; 
+T = 1*10^-3; 
+t = 0:1/fs:T-1/fs;
+symbols = reshape(bits, 2, [])*2-1; 
+I = symbols(1,:); 
+Q = symbols(2,:);
+mod_sig = []; 
+for i = 1:length(I), mod_sig = [mod_sig I(i)*cos(2*pi*fc*t) - Q(i)*sin(2*pi*fc*t)]; 
+end
+r = reshape(mod_sig, length(t), []);
+I_demod = round(mean(r .* cos(2*pi*fc*t)', 1));  
+Q_demod = round(mean(r .* -sin(2*pi*fc*t)', 1));
+demod_bits = reshape([I_demod; Q_demod], 1, []) > 0;
+
+subplot(3,1,1), stairs([bits bits(end)]), 
+title('Input Bits'), ylim([-0.5 1.5]);
+subplot(3,1,2), plot(mod_sig), 
+title('QPSK Modulated Signal');
+subplot(3,1,3), stairs([demod_bits demod_bits(end)]), 
+title('Demodulated Bits'), ylim([-0.5 1.5]);
+
+
+
+
+
+
+
+
+% Parameters
+data = [1 0 1 1 0 0 1 0]; % Binary data sequence
+N = 1;                   % Duration of each bit in seconds
+fs = 100;                % Samples per bit
+t = 0:1/fs:N-1/fs;       % Time vector for one bit
+time = 0:1/fs:N*length(data)-1/fs; % Full time vector
+
+% Generate waveforms for different line coding techniques
+unipolar = repelem(data, fs);
+polar = repelem(2*data - 1, fs); % 0 -> -1, 1 -> +1
+bipolar = zeros(1, length(data)*fs);
+last_pulse = -1; % Start with -1 for bipolar
+for i = 1:length(data)
+    if data(i) == 1
+        last_pulse = -last_pulse; % Alternate pulse
+        bipolar((i-1)*fs + 1:i*fs) = last_pulse;
+    end
+end
+
+% Manchester encoding
+manchester = zeros(1, length(data) * fs);
+for i = 1:length(data)
+    if data(i) == 1
+        manchester((i-1)*fs + 1:(i-1)*fs + fs/2) = 1; % High-to-low
+        manchester((i-1)*fs + fs/2 + 1:i*fs) = 0;
+    else
+        manchester((i-1)*fs + 1:(i-1)*fs + fs/2) = 0; % Low-to-high
+        manchester((i-1)*fs + fs/2 + 1:i*fs) = 1;
+    end
+end
+
+% Differential Manchester encoding
+diff_manchester = zeros(1, length(data) * fs);
+current_phase = 1; % Start with positive phase
+for i = 1:length(data)
+    if data(i) == 1
+        % Flip phase at the middle of the bit
+        diff_manchester((i-1)*fs + fs/2 + 1:i*fs) = -current_phase;
+    else
+        % Maintain the same phase throughout the bit
+        diff_manchester((i-1)*fs + fs/2 + 1:i*fs) = current_phase;
+    end
+    diff_manchester((i-1)*fs + 1:(i-1)*fs + fs/2) = current_phase;
+    current_phase = -current_phase; % Flip phase for the next bit
+end
+
+% Plot the waveforms
+figure;
+subplot(5,1,1);
+stairs(time, unipolar, 'LineWidth', 2); grid on;
+title('Unipolar Line Coding'); ylim([-0.5, 1.5]); ylabel('Amplitude');
+subplot(5,1,2);
+stairs(time, polar, 'LineWidth', 2); grid on;
+title('Polar Line Coding'); ylim([-1.5, 1.5]); ylabel('Amplitude');
+subplot(5,1,3);
+stairs(time, bipolar, 'LineWidth', 2); grid on;
+title('Bipolar Line Coding'); ylim([-1.5, 1.5]); ylabel('Amplitude');
+subplot(5,1,4);
+stairs(time, manchester, 'LineWidth', 2); grid on;
+title('Manchester Line Coding'); ylim([-0.5, 1.5]); ylabel('Amplitude');
+subplot(5,1,5);
+stairs(time, diff_manchester, 'LineWidth', 2); grid on;
+title('Differential Manchester Line Coding'); ylim([-1.5, 1.5]); ylabel('Amplitude');
+xlabel('Time (s)'); ylabel('Amplitude');
